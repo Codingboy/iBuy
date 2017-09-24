@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block bodycontent %}
+    <div class='container'>
+        <div class='row'>
+            <div class='col-xs-1'></div>
+            <div class='col-xs-10'>
+                <form id="form" class="form-horizontal" action="" method="post">
+                    <input type="submit" value="Submit">
+                    <input type="reset" value="Reset">
+                    <input type="date" name="date" id="date">
+                </form>
+                <input type="button" onclick="addForm()" value="More"/>
+            </div>
+            <div class='col-xs-1'></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
+    <script>
+        let globalI = 0;
+        function addForm()
+        {
+            let form = document.getElementById("form");
+            let hr = document.createElement("hr");
+            form.appendChild(hr);
+            
+            let div = document.createElement("div");
+            div.setAttribute("class", "form-group");
+            let label = document.createElement("label");
+            label.setAttribute("for", "brand["+globalI+"]");
+            label.innerHTML = "Brand";
+            div.appendChild(label);
+            let input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("name", "brand["+globalI+"]");
+            input.setAttribute("id", "brand["+globalI+"]");
+            input.setAttribute("list", "brand["+globalI+"]list");
+            input.setAttribute("onkeyup", "requestBrands('brand["+globalI+"]')");
+            let list = document.createElement("datalist");
+            list.setAttribute("id", "brand["+globalI+"]list");
+            input.appendChild(list);
+            div.appendChild(label);
+            div.appendChild(input);
+            
+            label = document.createElement("label");
+            label.setAttribute("for", "product["+globalI+"]");
+            label.innerHTML = "Product";
+            div.appendChild(label);
+            input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("name", "product["+globalI+"]");
+            div.appendChild(label);
+            div.appendChild(input);
+            
+            label = document.createElement("label");
+            label.setAttribute("for", "category["+globalI+"]");
+            label.innerHTML = "Category";
+            div.appendChild(label);
+            input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("name", "category["+globalI+"]");
+            div.appendChild(label);
+            div.appendChild(input);
+            form.appendChild(div);
+            
+            div = document.createElement("div");
+            div.setAttribute("class", "form-group");
+            label = document.createElement("label");
+            label.setAttribute("for", "n["+globalI+"]");
+            label.innerHTML = "Number";
+            div.appendChild(label);
+            input = document.createElement("input");
+            input.setAttribute("type", "number");
+            input.setAttribute("name", "n["+globalI+"]");
+            input.setAttribute("value", "1");
+            div.appendChild(label);
+            div.appendChild(input);
+            
+            label = document.createElement("label");
+            label.setAttribute("for", "price["+globalI+"]");
+            label.innerHTML = "Price";
+            div.appendChild(label);
+            input = document.createElement("input");
+            input.setAttribute("type", "number");
+            input.setAttribute("name", "price["+globalI+"]");
+            div.appendChild(label);
+            div.appendChild(input);
+            form.appendChild(div);
+            
+            div = document.createElement("div");
+            div.setAttribute("class", "form-group");
+            label = document.createElement("label");
+            label.setAttribute("for", "amount["+globalI+"]");
+            label.innerHTML = "Amount";
+            div.appendChild(label);
+            input = document.createElement("input");
+            input.setAttribute("type", "number");
+            input.setAttribute("name", "amount["+globalI+"]");
+            div.appendChild(label);
+            div.appendChild(input);
+            
+            label = document.createElement("label");
+            label.setAttribute("for", "unit["+globalI+"]");
+            label.innerHTML = "Unit";
+            div.appendChild(label);
+            input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("name", "unit["+globalI+"]");
+            div.appendChild(label);
+            div.appendChild(input);
+            form.appendChild(div);
+            
+            globalI++;
+        }
+        function requestBrands(name)
+        {
+            console.log("42");
+            console.log(name);
+            let letters = document.getElementById(name).value;
+            console.log(letters);
+            let list = document.getElementById(name+"list");
+            if (letters.length < 2)
+            {
+                while (list.firstChild)
+                {
+                    list.removeChild(list.firstChild);
+                }
+            }
+            if (letters.length == 2)
+            {
+                socket.emit("requestBrands", {letters: letters, name: name});
+            }
+        }
+        function respondBrands(json)
+        {
+            console.log("respondBrands");
+            let brands = json["brands"];
+            let name = json["name"];
+            let list = document.getElementById(name+"list");
+            while (list.firstChild)
+            {
+                list.removeChild(list.firstChild);
+            }
+            for (brand of brands)
+            {
+                let option = document.createElement("option");
+                option.setAttribute("value", brand);
+                list.appendChild(option);
+            }
+        }
+        Date.prototype.toDateInputValue = (function()
+        {
+            var local = new Date(this);
+            local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+            return local.toJSON().slice(0,10);
+        });
+        document.getElementById("date").value = new Date().toDateInputValue();
+        var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+        socket.open();
+        let requestUpdate = false;
+        socket.on("requestBrands", function(json)
+        {
+            console.log("requestBrands");
+            brands = json["brands"];
+            respondBrands(json);
+        });
+    </script>
+{% endblock bodycontent %}
