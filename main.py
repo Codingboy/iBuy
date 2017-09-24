@@ -165,7 +165,7 @@ def requestBrands(json):
     logger.info(json)
     letters = json["letters"]
     session = Session()
-    brands = session.query(Brand.name).filter(Brand.name.like(letters)).all()
+    brands = session.query(Brand.name).filter(Brand.name.like(letters+"%")).all()
     json["brands"] = brands
     logger.info(json)
     emit("respondBrands", json, room=None)
