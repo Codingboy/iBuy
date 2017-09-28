@@ -157,7 +157,7 @@
         var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
         socket.open();
         let requestUpdate = false;
-        socket.on("requestBrands", function(json)
+        socket.on("respondBrands", function(json)
         {
             console.log("requestBrands");
             brands = json["brands"];
