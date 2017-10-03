@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.4
+
 import logging
 from flask import Flask, request, redirect, render_template
 from werkzeug.serving import run_simple
